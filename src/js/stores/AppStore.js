@@ -6,11 +6,14 @@
 
 import { EventEmitter } from 'events';
 import objectAssign     from 'object-assign';
+import path             from 'path';
 
 import app from '../constants/app';
 
 import AppDispatcher from '../dispatcher/AppDispatcher';
 import AppConstants  from '../constants/AppConstants';
+
+import utils from '../utils/utils';
 
 var CHANGE_EVENT = 'change';
 
@@ -89,7 +92,9 @@ AppDispatcher.register(function(payload) {
 
             // Play it if needed !
             if(!noReplay) {
-                app.audio.src = 'file://' + playlist[id].path;
+
+                var uri = utils.parseURI(playlist[id].path);
+                app.audio.src = 'file://' + uri;
                 app.audio.play();
             }
 
@@ -214,7 +219,8 @@ AppDispatcher.register(function(payload) {
 
             if (playlist[newPlaylistCursor] !== undefined) {
 
-                app.audio.src = playlist[newPlaylistCursor].path;
+                var uri = utils.parseURI(playlist[newPlaylistCursor].path); ;
+                app.audio.src = 'file://' + uri;
                 app.audio.play();
 
                 AppStore.playlistCursor = newPlaylistCursor;
@@ -244,7 +250,9 @@ AppDispatcher.register(function(payload) {
 
             if (newTrack !== undefined) {
 
-                app.audio.src = newTrack.path;
+                var uri = utils.parseURI(newTrack.path);
+                app.audio.src = 'file://' + uri;
+
                 app.audio.play();
 
                 AppStore.playlistCursor = newPlaylistCursor;
@@ -362,6 +370,7 @@ AppDispatcher.register(function(payload) {
                 folders.forEach(function (folder) {
                     config.musicFolders.push(folder);
                 });
+                config.musicFolders.sort();
                 localStorage.setItem('config', JSON.stringify(config));
                 AppStore.emit(CHANGE_EVENT);
             }

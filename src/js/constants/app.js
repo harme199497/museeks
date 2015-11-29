@@ -23,27 +23,22 @@ var defaultConfig = {
 
 var config = JSON.parse(localStorage.getItem('config'));
 
-if(config === null) localStorage.setItem('config', JSON.stringify(defaultConfig));
+if(config === null) {
+    localStorage.setItem('config', JSON.stringify(defaultConfig));
+    config = defaultConfig;
+}
 else {
     var configChanged = false;
 
-    if(config.theme === undefined) {
-        config.theme  = defaultConfig.theme;
-        configChanged = true;
+    for(var key in defaultConfig) {
+        if(config[key] === undefined) {
+            config[key]   = defaultConfig[key];
+            configChanged = true;
+        }
     }
-    if(config.volume === undefined) {
-        config.volume = defaultConfig.volume;
-        configChanged = true;
-    }
-    if(config.musicFolders === undefined) {
-        config.musicFolders = defaultConfig.musicFolders;
-        configChanged = true;
-    };
 
     // save config if changed
-    if(configChanged) {
-        localStorage.setItem('config', JSON.stringify(config))
-    }
+    if(configChanged) localStorage.setItem('config', JSON.stringify(config));
 }
 
 
@@ -84,19 +79,19 @@ audio.addEventListener('ended', AppActions.player.next);
 
 var db = new nedb({
     filename: path.join(pathConfig, 'library.db'),
-    autoload: true,
+    autoload: true
 });
 
 db.reset = function() {
-    db.remove({ }, { multi: true }, function (err, numRemoved) {
+    db.remove({}, { multi: true }, function (err, numRemoved) {
         db.loadDatabase(function (err) {
-            if(err) {
-                throw err
-            }
+            if(err) throw err;
         });
     });
 };
 
+// WTFix, de.loadDatabase() throw an error if the line below is not here
+fs.writeFile(path.join(pathConfig, '.init'), "", (err) => { if(err) throw err; });
 
 
 /*
